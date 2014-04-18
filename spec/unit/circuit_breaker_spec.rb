@@ -12,7 +12,6 @@ describe Supervision::CircuitBreaker do
 
   let(:object) { described_class }
 
-
   context 'when closed' do
     it "successfully calls the method" do
       circuit = object.new call_timeout: 1.milli do |arg|

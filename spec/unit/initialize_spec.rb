@@ -27,7 +27,12 @@ describe Supervision do
       supervision = Supervision.supervise_as(:danger) { called << 'method_call'}
       supervision.call
       expect(called).to eql(['method_call'])
-      expect(Supervision.circuit_system[:danger]).to eql(supervision)
+      expect(Supervision[:danger]).to eql(supervision)
+    end
+
+    it "caches system circuits" do
+      system = Supervision.circuit_system
+      2.times { expect(Supervision.circuit_system).to eq(system) }
     end
   end
 

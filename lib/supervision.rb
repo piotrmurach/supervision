@@ -32,6 +32,9 @@ module Supervision
       @configuration ||= Configuration.new
     end
 
+    # Initialize a circuit system
+    #
+    # @api private
     def init
       @circuit_system = CircuitSystem.new
     end
@@ -45,6 +48,13 @@ module Supervision
     # @api public
     def new(name = nil, options = {}, &block)
       name ? supervise_as(name, options, &block) : supervise(options, &block)
+    end
+
+    # Retrieve circuit by name
+    #
+    # @api public
+    def [](name)
+      Supervision.circuit_system[name]
     end
   end
 
