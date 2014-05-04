@@ -5,6 +5,8 @@ require 'spec_helper'
 describe Supervision do
 
   context "when used as instance" do
+    before { Supervision.circuit_system.shutdown }
+
     it "permits options configuration" do
       supervision = Supervision.new { }
       supervision.configure do
@@ -15,19 +17,32 @@ describe Supervision do
       expect(supervision.control.call_timeout).to eql(1.sec)
     end
 
-    it "allows to supervise call" do
+    it "supervises call" do
       called = []
-      supervision = Supervision.supervise { called << 'method_call'}
-      supervision.call
-      expect(called).to eql(['method_call'])
+      supervision = Supervision.supervise { |arg| called << "method_call_#{arg}"}
+      supervision.call(:foo)
+      expect(called).to match_array(['method_call_foo'])
     end
 
     it "registers named supervision" do
       called = []
-      supervision = Supervision.supervise_as(:danger) { called << 'method_call'}
-      supervision.call
-      expect(called).to eql(['method_call'])
+      expect(Supervision[:danger]).to be_nil
+      supervision = Supervision.supervise_as(:danger) { |arg|
+        called << "method_call_#{arg}"
+      }
+      supervision.call(:foo)
       expect(Supervision[:danger]).to eql(supervision)
+      expect(called).to match_array(['method_call_foo'])
+    end
+
+    it "calls registered circuit by name" do
+      called = []
+      expect(Supervision[:danger]).to be_nil
+      Supervision.supervise_as(:danger) { |arg|
+        called << "method_call_#{arg}"
+      }
+      Supervision.danger(:foo)
+      expect(called).to match_array(['method_call_foo'])
     end
 
     it "caches system circuits" do
@@ -37,6 +52,8 @@ describe Supervision do
   end
 
   context "when included as module" do
+    before { Supervision.circuit_system.shutdown }
+
     class RemoteApi
       include Supervision
 

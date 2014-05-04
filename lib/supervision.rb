@@ -59,9 +59,18 @@ module Supervision
 
     # Retrieve circuit by name
     #
+    # @return [Supervision::CircuitBreaker]
+    #
     # @api public
     def [](name)
-      Supervision.circuit_system[name]
+      circuit_system[name]
+    end
+
+    private
+
+    def method_missing(method_name, *args, &block)
+      super unless circuit_system.registered?(method_name)
+      self[method_name].call(*args)
     end
   end
 
@@ -72,7 +81,7 @@ module Supervision
 
     def supervise_as(name, options = {}, &block)
       circuit = supervise(options, &block)
-      Supervision.circuit_system[name] = circuit
+      Supervision.circuit_system.register(name, circuit)
       send(:define_method, name) { |*args| circuit.call(args) }
       circuit
     end
