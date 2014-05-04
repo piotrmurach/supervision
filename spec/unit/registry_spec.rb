@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 require 'spec_helper'
 
 describe Supervision::Registry do
@@ -6,7 +8,7 @@ describe Supervision::Registry do
 
   subject(:registry) { described_class.new }
 
-  it "registers" do
+  it "registers a circuit" do
     registry[:danger] = circuit
     expect(registry[:danger]).to eql(circuit)
   end
@@ -17,14 +19,27 @@ describe Supervision::Registry do
     }.to raise_error(Supervision::TypeError)
   end
 
-  it "" do
-    registry[:danger] = circuit
-    expect(registry.names).to eql([:danger])
+  it "retrieves registered circuit names" do
+    registry.register :danger, circuit
+    registry.register :fragile, circuit
+    expect(registry.names).to match_array([:danger, :fragile])
   end
 
-  it "" do
-    registry[:danger] = circuit
-    registry.delete(:danger)
-    expect(registry.names).to be_empty
+  it "deletes circuit from registry" do
+    registry.register :danger, circuit
+    registry.delete :danger
+    expect(registry.empty?).to be_true
+  end
+
+  it "checks if circuit is registered" do
+    registry.register :danger, circuit
+    expect(registry.registered?(:danger)).to be_true
+  end
+
+  it "clears all circuits" do
+    registry.register :danger, circuit
+    expect(registry.empty?).to be_false
+    registry.clear
+    expect(registry.empty?).to be_true
   end
 end

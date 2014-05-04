@@ -3,7 +3,6 @@
 module Supervision
   # A class responsible for registering/unregistering circuits
   class Registry
-
     # Initialize a Registry
     #
     # @api public
@@ -13,6 +12,12 @@ module Supervision
     end
 
     # Register a circuit
+    #
+    # @param [String] name
+    #   the name under which to register
+    #
+    # @param [Supervision::CircuitBreaker] circuit
+    #   the registered circuit breaker
     #
     # @api public
     def []=(name, circuit)
@@ -25,6 +30,8 @@ module Supervision
     end
 
     # Retrieve a circuit by name
+    #
+    # @param [String] name
     #
     # @api public
     def [](name)
@@ -48,15 +55,39 @@ module Supervision
 
     # Check if circuit is in registry
     #
+    # @return [Boolean]
+    #
     # @api public
     def registered?(name)
       names.include?(name)
     end
 
+    # Retrieve registered circuits' names
+    #
+    # @return [Array]
+    #
+    # @api public
     def names
       @lock.synchronize { @map.keys }
     end
 
+    # Check if registry is empty or not
+    #
+    # @return [Boolean]
+    #
+    # @api public
+    def empty?
+      @lock.synchronize { @map.empty? }
+    end
+
+    # Remove all registered circuits
+    #
+    # @example
+    #  registry.clear
+    #
+    # @return [Hash]
+    #
+    # @api public
     def clear
       hash = nil
       @lock.synchronize do
