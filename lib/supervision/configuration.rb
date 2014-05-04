@@ -64,9 +64,9 @@ module Supervision
       end
     end
 
-    # TODO: replace with custom error
     def raise_unknown_config_option(option)
-      raise ArgumentError, "`#{option}` isn`t recognized as valid parameter." \
+      raise InvalidParameterError,
+            "`#{option}` isn`t recognized as valid parameter." \
             " Please use one of `#{known_options.join(', ')}`"
     end
   end # Configuration

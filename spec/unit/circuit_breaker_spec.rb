@@ -12,6 +12,10 @@ describe Supervision::CircuitBreaker do
 
   let(:object) { described_class }
 
+  it "fails without a block" do
+    expect { object.new }.to raise_error(Supervision::InvalidParameterError)
+  end
+
   context 'when closed' do
     it "successfully calls the method" do
       circuit = object.new call_timeout: 1.milli do |arg|
@@ -91,11 +95,5 @@ describe Supervision::CircuitBreaker do
       circuit.call
       expect(callbacks).to eql(['before', 'on_failure'])
     end
-  end
-
-  it "fails fast with unknown config option" do
-    expect {
-      object.new max_fail: 2 do safe_call end
-    }.to raise_error(ArgumentError)
   end
 end

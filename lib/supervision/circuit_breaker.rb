@@ -9,7 +9,7 @@ module Supervision
 
     def initialize(options = {}, &block)
       if block.nil?
-        raise ArgumentError, 'CircuitBreaker.new requires a block'
+        raise InvalidParameterError, 'CircuitBreaker.new requires a block'
       end
       @control = CircuitControl.new(options)
       @circuit = Atomic.new(block)
