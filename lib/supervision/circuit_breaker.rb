@@ -14,9 +14,6 @@ module Supervision
       @control = CircuitControl.new(options)
       @circuit = Atomic.new(block)
       @mutex   = Mutex.new
-      @before_hook  = -> {}
-      @success_hook = -> {}
-      @failure_hook = -> {}
     end
 
     # Configure circuit instance parameters
@@ -39,41 +36,69 @@ module Supervision
     #
     # @api public
     def call(*args)
-      @before_hook.call
+      handle_before
       begin
         result = dispatch(*args)
-        @success_hook.call
+        handle_success
         result
       rescue Exception => error
-        control.handle(error)
-        @failure_hook.call
+        handle_failure(error)
       end
     end
 
-    def force_open
-    end
-
-    def force_close
-    end
-
+    # Define before handler
+    #
+    # @api public
     def before(&block)
-      @before_hook = block
+      @before = block
+      self
     end
 
-    # Callback executed on successful call
+    # Define success handler
+    #
+    # @return [Supervision::CircuitBreaker]
     #
     # @api public
     def on_success(&block)
-      @success_hook = block
+      @on_success = block
+      self
     end
     alias_method :on_closed, :on_success
 
+    # Define failure handler
+    #
+    # @return [Supervision::CircuitBreaker]
+    #
+    # @api public
     def on_failure(&block)
-      @failure_hook = block
+      @on_failure = block
+      self
     end
     alias_method :on_open, :on_failure
 
     private
+
+    # Invoke before handler
+    #
+    # @api private
+    def handle_before
+      @before.call if @before
+    end
+
+    # Invoke success handler
+    #
+    # @api private
+    def handle_success
+      @on_success.call if @on_success
+    end
+
+    # Invoke failure handler and instrument circuit controller
+    #
+    # @api private
+    def handle_failure(error)
+      control.handle(error)
+      @on_failure.call(error) if @on_failure
+    end
 
     # Dispatch message to the current circuit
     #

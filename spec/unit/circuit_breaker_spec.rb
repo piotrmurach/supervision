@@ -78,13 +78,13 @@ describe Supervision::CircuitBreaker do
     end
   end
 
-  context 'when with callback' do
+  context 'with notification' do
     it "notifies about successful call" do
       callbacks = []
       circuit = object.new do safe_call end
       circuit.on_success { callbacks << 'on_success' }
       circuit.call
-      expect(callbacks).to eql(["on_success"])
+      expect(callbacks).to match_array(["on_success"])
     end
 
     it "notifies about failed call" do
@@ -93,7 +93,7 @@ describe Supervision::CircuitBreaker do
       circuit.on_failure { callbacks << 'on_failure'}
       circuit.before { callbacks << 'before'}
       circuit.call
-      expect(callbacks).to eql(['before', 'on_failure'])
+      expect(callbacks).to match_array(['before', 'on_failure'])
     end
   end
 end
