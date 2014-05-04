@@ -27,6 +27,9 @@ module Supervision
   # Raised when invalid configuration parameter is specified
   InvalidParameterError = Class.new(SupervisionError)
 
+  # Raised when registering duplicate circuit breaker name
+  DuplicateEntryError = Class.new(SupervisionError)
+
   class << self
     def included(base)
       base.send :extend, ClassMethods
