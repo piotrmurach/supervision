@@ -19,6 +19,22 @@ describe Supervision::Registry do
     }.to raise_error(Supervision::TypeError)
   end
 
+  it "refuses to add duplicate entry" do
+    registry[:danger] = circuit
+    expect {
+      registry[:danger] = circuit
+    }.to raise_error(Supervision::DuplicateEntryError)
+  end
+
+  it "returns nil for unregistered circuit" do
+    expect(registry[:danger]).to be_nil
+  end
+
+  it "gets a circuit by name" do
+    registry.register :danger, circuit
+    expect(registry[:danger]).to eq(circuit)
+  end
+
   it "retrieves registered circuit names" do
     registry.register :danger, circuit
     registry.register :fragile, circuit

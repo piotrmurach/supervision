@@ -22,7 +22,10 @@ module Supervision
     # @api public
     def []=(name, circuit)
       unless circuit.is_a?(CircuitBreaker)
-        raise TypeError, 'not a circuit'
+        raise TypeError, 'not a type of circuit breaker'
+      end
+      if registered?(name)
+        raise DuplicateEntryError, "`#{name}` is already registered"
       end
       @lock.synchronize do
         @map[name.to_sym] = circuit
@@ -59,7 +62,7 @@ module Supervision
     #
     # @api public
     def registered?(name)
-      names.include?(name)
+      names.include?(name) || names.include?(name.to_sym)
     end
 
     # Retrieve registered circuits' names
