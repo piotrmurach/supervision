@@ -22,6 +22,19 @@ module Supervision
                                                 DEFAULT_RESET_TIMEOUT))
     end
 
+    # Evalutate this configuration
+    #
+    # @return [self]
+    #
+    # @api public
+    def configure(&block)
+      if block.arity.zero?
+        instance_eval(&block)
+      else
+        yield self
+      end
+    end
+
     def max_failures=(value)
       @max_failures.set(value)
     end

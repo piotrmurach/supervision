@@ -38,13 +38,13 @@ module Supervision
 
         target context
 
-        events {
+        events do
           event :trip,         [:closed, :half_open] => :open
           event :attempt_reset, :open => :half_open
           event :reset,         :half_open => :closed
-        }
+        end
 
-        callbacks {
+        callbacks do
           on_enter :closed do |event|
             reset_failure
           end
@@ -56,11 +56,12 @@ module Supervision
 
           on_enter :half_open do |event|
           end
-        }
+        end
       end
     end
 
-    def_delegators :@fsm, :trip, :attempt_reset, :reset, :current
+    def_delegators :@fsm, :trip, :trip!, :attempt_reset, :attempt_reset!,
+                   :reset,  :current
 
     # Total failure count for current circuit
     #
@@ -78,6 +79,16 @@ module Supervision
     # @api public
     def last_failure_time
       @last_failure_time.value
+    end
+
+    # Force closed state and reset failure statistics
+    #
+    # @return [nil]
+    #
+    # @api public
+    def reset!
+      fsm.reset!
+      reset_failure
     end
 
     # Fail fast on any call

@@ -7,6 +7,12 @@ module Supervision
 
     attr_reader :control
 
+    # Create a CircuitBreaker
+    #
+    # @example
+    #   circuit = CircuitBreaker { ... }
+    #
+    # @api public
     def initialize(options = {}, &block)
       if block.nil?
         raise InvalidParameterError, 'CircuitBreaker.new requires a block'
@@ -22,11 +28,7 @@ module Supervision
     #
     # @api public
     def configure(&block)
-      if block.arity.zero?
-        control.config.instance_eval(&block)
-      else
-        yield control.config
-      end
+      control.config.configure(&block)
     end
 
     # Executes the dangerous call
@@ -44,6 +46,18 @@ module Supervision
       rescue Exception => error
         handle_failure(error)
       end
+    end
+
+    # Reset this circuit to closed state
+    #
+    # @example
+    #   supervision.reset!
+    #
+    # @return [nil]
+    #
+    # @api public
+    def reset!
+      control.reset!
     end
 
     # Define before handler

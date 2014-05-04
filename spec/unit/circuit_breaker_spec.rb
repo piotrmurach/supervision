@@ -16,6 +16,19 @@ describe Supervision::CircuitBreaker do
     expect { object.new }.to raise_error(Supervision::InvalidParameterError)
   end
 
+  it "resets circuit" do
+    circuit = object.new { }
+    expect(circuit.control).to receive(:reset!)
+    circuit.reset!
+  end
+
+  it "configures the control" do
+    block = -> { }
+    circuit = object.new { }
+    expect(circuit.control.config).to receive(:configure).with(&block)
+    circuit.configure(&block)
+  end
+
   context 'when closed' do
     it "successfully calls the method" do
       circuit = object.new call_timeout: 1.milli do |arg|
