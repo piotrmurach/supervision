@@ -90,6 +90,24 @@ module Supervision
     end
     alias_method :on_open, :on_failure
 
+    # Detailed string representation of this circuit
+    #
+    # @return [String]
+    #
+    # @api public
+    def inspect
+      "#<#{self.class.name}:#{object_id}>"
+    end
+
+    # Detailed string representation of this circuit
+    #
+    # @return [String]
+    #
+    # @api public
+    def to_s
+      "#<#{self.class.name}:#{object_id}>"
+    end
+
     private
 
     # Invoke before handler
