@@ -21,7 +21,11 @@ module Supervision
   # Raised when circuit opens
   CircuitBreakerOpenError = Class.new(SupervisionError)
 
+  # Raised when checking circuit type
   TypeError = Class.new(SupervisionError)
+
+  # Raised when invalid configuration parameter is specified
+  InvalidParameterError = Class.new(SupervisionError)
 
   class << self
     def included(base)
