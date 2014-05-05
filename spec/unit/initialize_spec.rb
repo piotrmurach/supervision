@@ -17,37 +17,54 @@ describe Supervision do
       expect(supervision.control.call_timeout).to eql(1.sec)
     end
 
-    it "supervises call" do
-      called = []
-      supervision = Supervision.supervise { |arg| called << "method_call_#{arg}"}
-      supervision.call(:foo)
-      expect(called).to match_array(['method_call_foo'])
+    describe "#supervise" do
+      it "supervises call" do
+        called = []
+        supervision = Supervision.supervise { |arg| called << "method_call_#{arg}"}
+        supervision.call(:foo)
+        expect(called).to match_array(['method_call_foo'])
+      end
     end
 
-    it "registers named supervision" do
-      called = []
-      expect(Supervision[:danger]).to be_nil
-      supervision = Supervision.supervise_as(:danger) { |arg|
-        called << "method_call_#{arg}"
-      }
-      supervision.call(:foo)
-      expect(Supervision[:danger]).to eql(supervision)
-      expect(called).to match_array(['method_call_foo'])
+    describe "#supervise_as" do
+      it "registers named supervision" do
+        called = []
+        expect(Supervision[:danger]).to be_nil
+        supervision = Supervision.supervise_as(:danger) { |arg|
+          called << "method_call_#{arg}"
+        }
+        supervision.call(:foo)
+        expect(Supervision[:danger]).to eql(supervision)
+        expect(called).to match_array(['method_call_foo'])
+      end
+
+      it "calls registered circuit by name" do
+        called = []
+        expect(Supervision[:danger]).to be_nil
+        Supervision.supervise_as(:danger) { |arg| called << "method_call_#{arg}" }
+        Supervision.danger(:foo)
+        expect(called).to match_array(['method_call_foo'])
+      end
+
+      it "saves the name on circuit" do
+        Supervision.supervise_as(:danger) { }
+        circuit = Supervision[:danger]
+        expect(circuit.name).to eql(:danger)
+      end
     end
 
-    it "calls registered circuit by name" do
-      called = []
-      expect(Supervision[:danger]).to be_nil
-      Supervision.supervise_as(:danger) { |arg|
-        called << "method_call_#{arg}"
-      }
-      Supervision.danger(:foo)
-      expect(called).to match_array(['method_call_foo'])
+    describe "#circuit_system" do
+      it "caches system circuits" do
+        system = Supervision.circuit_system
+        2.times { expect(Supervision.circuit_system).to eq(system) }
+      end
     end
 
-    it "caches system circuits" do
-      system = Supervision.circuit_system
-      2.times { expect(Supervision.circuit_system).to eq(system) }
+    describe "#configuration" do
+      it "caches configuration" do
+        config = Supervision.configuration
+        2.times { expect(Supervision.configuration).to eq(config) }
+      end
     end
   end
 
