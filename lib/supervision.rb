@@ -13,6 +13,7 @@ require "supervision/circuit_control"
 require "supervision/circuit_breaker"
 require "supervision/circuit_system"
 require "supervision/circuit_monitor"
+require "supervision/counter"
 
 module Supervision
   # Generic error
