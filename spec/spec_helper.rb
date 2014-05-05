@@ -24,6 +24,16 @@ module Helpers
       sleep(duration || 0.01) until yield
     end
   end
+
+  def spawn(threads = 2)
+    threads.times.map do |i|
+      Thread.new do
+        yield i
+      end
+    end.each do |thread|
+      thread.join
+    end
+  end
 end
 
 RSpec.configure do |config|
