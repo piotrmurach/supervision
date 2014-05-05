@@ -7,6 +7,8 @@ module Supervision
 
     attr_reader :control
 
+    attr_reader :name
+
     # Create a CircuitBreaker
     #
     # @example
@@ -17,6 +19,7 @@ module Supervision
       if block.nil?
         raise InvalidParameterError, 'CircuitBreaker.new requires a block'
       end
+      @name    = options.delete(:name)
       @control = CircuitControl.new(options)
       @circuit = Atomic.new(block)
       @mutex   = Mutex.new
@@ -96,7 +99,7 @@ module Supervision
     #
     # @api public
     def inspect
-      "#<#{self.class.name}:#{object_id}>"
+      "#<#{self.class.name}:#{object_id} @name=#{name}>"
     end
 
     # Detailed string representation of this circuit
@@ -105,7 +108,7 @@ module Supervision
     #
     # @api public
     def to_s
-      "#<#{self.class.name}:#{object_id}>"
+      "#<#{self.class.name}:#{object_id} @name=#{name}>"
     end
 
     private

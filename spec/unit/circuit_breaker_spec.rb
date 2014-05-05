@@ -109,4 +109,18 @@ describe Supervision::CircuitBreaker do
       expect(callbacks).to match_array(['before', 'on_failure'])
     end
   end
+
+  describe "#to_s" do
+    it 'prints object info' do
+      circuit = object.new(name: :danger) { }
+      expect(circuit.to_s).to include("@name=danger")
+    end
+  end
+
+  describe "#inspect" do
+    it 'prints object info' do
+      circuit = object.new(name: :danger) { }
+      expect(circuit.inspect).to include("@name=danger")
+    end
+  end
 end

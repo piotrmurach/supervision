@@ -80,7 +80,7 @@ module Supervision
     end
 
     def supervise_as(name, options = {}, &block)
-      circuit = supervise(options, &block)
+      circuit = supervise(options.merge!(name: name), &block)
       Supervision.circuit_system.register(name, circuit)
       send(:define_method, name) { |*args| circuit.call(args) }
       circuit
