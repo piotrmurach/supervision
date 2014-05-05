@@ -17,6 +17,11 @@ module Supervision
     # @api private
     attr_reader :scheduler
 
+    # The circuit performance monitor
+    #
+    # @api private
+    attr_reader :monitor
+
     MAX_THREAD_LIFETIME = 5
 
     # Create a circuit control
@@ -29,6 +34,7 @@ module Supervision
       @failure_count     = Atomic.new(0)
       @last_failure_time = Atomic.new
       @lock              = Mutex.new
+      @monitor           = CircuitMonitor.new
       fsm
     end
 
@@ -63,6 +69,7 @@ module Supervision
           end
 
           on_enter :half_open do |event|
+            monitor.measure(:half_open_circuit)
           end
         end
       end
@@ -106,7 +113,7 @@ module Supervision
     #
     # @api private
     def fail_fast!
-      # monitor.record_open
+      monitor.measure(:open_circuit)
       raise CircuitBreakerOpenError
     end
 
@@ -143,6 +150,7 @@ module Supervision
     def handle_failure(error = nil)
       fail_fast! if fsm.open?
       record_failure
+      monitor.record_failure
       trip if failure_count_exceeded? || fsm.half_open?
     end
 
@@ -152,6 +160,7 @@ module Supervision
     def record_success
       reset if fsm.half_open?
       reset_failure
+      monitor.record_success
     end
 
     # Record failure count
