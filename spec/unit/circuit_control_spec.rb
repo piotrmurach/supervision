@@ -7,7 +7,7 @@ describe Supervision::CircuitControl do
 
   let(:max_failures) { 1 }
 
-  let(:reset_timeout) { 0.1.sec }
+  let(:reset_timeout) { 0.2.sec }
 
   subject(:control) {
     object.new max_failures: max_failures,
@@ -17,25 +17,27 @@ describe Supervision::CircuitControl do
   context 'when closed' do
     it "resets the failure count on success" do
       expect(control.failure_count).to eql(0)
-      expect(control.fsm.current).to eql(:closed)
+      expect(control.current).to eql(:closed)
       control.record_failure
       expect(control.failure_count).to eql(1)
       control.reset_failure
       expect(control.failure_count).to eql(0)
-      expect(control.fsm.current).to eql(:closed)
+      expect(control.current).to eql(:closed)
     end
 
     it "increments failure count on exceptions and trips the wire" do
       expect(control.failure_count).to eql(0)
-      expect(control.fsm.current).to eql(:closed)
+      expect(control.current).to eql(:closed)
 
-      control.handle
+      control.handle_failure
       expect(control.failure_count).to eql(1)
-      expect(control.fsm.current).to eql(:closed)
+      expect(control.current).to eql(:closed)
 
-      expect{ control.handle }.to raise_error(Supervision::CircuitBreakerOpenError)
+      expect {
+        control.handle_failure
+      }.to raise_error(Supervision::CircuitBreakerOpenError)
       expect(control.failure_count).to eql(2)
-      expect(control.fsm.current).to eql(:open)
+      expect(control.current).to eql(:open)
     end
   end
 
@@ -43,7 +45,7 @@ describe Supervision::CircuitControl do
     it "fails all calls fast with CircuitBreakerOpenError" do
       control.trip!
       expect {
-        control.handle
+        control.handle_failure
       }.to raise_error(Supervision::CircuitBreakerOpenError)
       expect(control.current).to eq(:open)
     end
@@ -51,28 +53,43 @@ describe Supervision::CircuitControl do
     it "enters :half_open state after the configured :reset_timeout" do
       control.record_failure
       expect {
-        control.handle
+        control.handle_failure
       }.to raise_error(Supervision::CircuitBreakerOpenError)
-      sleep 0.3
-      expect(control.fsm.current).to eq(:half_open)
+      sleep 2 * reset_timeout
+      expect(control.current).to eq(:half_open)
     end
   end
 
   context 'when half open' do
-    before { control.fsm.state = :half_open }
+    before { control.attempt_reset! }
 
     it "resets the breaker back to :closed state on successful call" do
+      expect(control.current).to eq(:half_open)
       control.record_success
       expect(control.current).to eql(:closed)
       expect(control.failure_count).to eql(0)
     end
 
     it "trips the breaker back to :open state on failed call" do
+      expect(control.current).to eq(:half_open)
       expect {
-        control.handle
+        control.handle_failure
       }.to raise_error(Supervision::CircuitBreakerOpenError)
       expect(control.failure_count).to eql(1)
       expect(control.current).to eql(:open)
+    end
+  end
+
+  describe "#measure_timeout" do
+    it "kills the scheduler thread" do
+      expect {
+        control.trip
+      }.to raise_error(Supervision::CircuitBreakerOpenError)
+      expect(control.current).to eq(:open)
+      expect(control.scheduler).to receive(:kill).once
+      control.stub(:max_thread_lifetime).and_return 0
+      sleep reset_timeout
+      expect(control.current).to eq(:open)
     end
   end
 

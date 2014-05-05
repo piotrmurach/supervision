@@ -7,7 +7,15 @@ module Supervision
 
     def_delegators :@config, :max_failures, :call_timeout, :failure_count
 
+    # The circuit configuration
+    #
+    # @api private
     attr_reader :config
+
+    # The reset timeout scheduler
+    #
+    # @api private
+    attr_reader :scheduler
 
     MAX_THREAD_LIFETIME = 5
 
@@ -40,8 +48,8 @@ module Supervision
 
         events do
           event :trip,         [:closed, :half_open] => :open
-          event :attempt_reset, :open => :half_open
-          event :reset,         :half_open => :closed
+          event :attempt_reset, :open                => :half_open
+          event :reset,         :half_open           => :closed
         end
 
         callbacks do
@@ -89,6 +97,7 @@ module Supervision
     def reset!
       fsm.reset!
       reset_failure
+      throw(:terminate) if @scheduler && @scheduler.alive?
     end
 
     # Fail fast on any call
@@ -131,18 +140,21 @@ module Supervision
     # Handler exception
     #
     # @api public
-    def handle(error = nil)
+    def handle_failure(error = nil)
       fail_fast! if fsm.open?
       record_failure
       trip if failure_count_exceeded? || fsm.half_open?
     end
 
+    # Record successful call
+    #
+    # @api public
     def record_success
       reset if fsm.half_open?
       reset_failure
     end
 
-    # Records failure count
+    # Record failure count
     #
     # @api public
     def record_failure
@@ -164,18 +176,27 @@ module Supervision
     #
     # @api private
     def measure_timeout
-      Thread.new do
+      @scheduler = Thread.new do
         Thread.current.abort_on_exception = true
         thread = Thread.current
         thread[:created_at] = Time.now
         @lock.synchronize do
-          loop do
-            if tripped?
-              attempt_reset
-              break
-            elsif Time.now - thread[:created_at] > max_thread_lifetime
-              thread.kill
-            end
+          run_loop(thread)
+        end
+      end
+    end
+
+    # Run scheduler loop
+    #
+    # @api private
+    def run_loop(thread)
+      catch(:terminate) do
+        loop do
+          if tripped?
+            attempt_reset && break
+          elsif Time.now - thread[:created_at] > max_thread_lifetime
+            thread.kill if thread.alive?
+            break
           end
         end
       end
