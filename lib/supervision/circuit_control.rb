@@ -69,7 +69,7 @@ module Supervision
     end
 
     def_delegators :@fsm, :trip, :trip!, :attempt_reset, :attempt_reset!,
-                   :reset,  :current
+                   :reset, :current
 
     # Total failure count for current circuit
     #

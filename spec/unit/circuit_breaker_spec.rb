@@ -34,6 +34,7 @@ describe Supervision::CircuitBreaker do
       circuit = object.new call_timeout: 1.milli do |arg|
         arg == :danger ? dangerouse_call_error : safe_call
       end
+      expect(circuit.current).to be(:closed)
       expect(circuit.call(:safe)).to eql(safe_call)
     end
 

@@ -4,10 +4,13 @@ module Supervision
   # A class responsible for protecting remote calls
   class CircuitBreaker
     include Timeout
+    extend Forwardable
 
     attr_reader :control
 
     attr_reader :name
+
+    def_delegators :@control, :current
 
     # Create a CircuitBreaker
     #
