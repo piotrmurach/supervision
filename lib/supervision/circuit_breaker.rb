@@ -131,7 +131,7 @@ module Supervision
     #
     # @api private
     def handle_failure(error)
-      control.handle(error)
+      control.handle_failure(error)
       @on_failure.call(error) if @on_failure
     end
 

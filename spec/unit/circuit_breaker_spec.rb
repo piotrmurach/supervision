@@ -38,7 +38,7 @@ describe Supervision::CircuitBreaker do
     end
 
     it "increments a failure counter for exceptions" do
-      circuit = object.new call_timeout: 1.milli do
+      circuit = object.new call_timeout: 1.milli do |arg|
         arg == :danger ? dangerouse_call_error : safe_call
       end
       circuit.call(:danger)
@@ -65,26 +65,26 @@ describe Supervision::CircuitBreaker do
     end
 
     it "enters a :half_open state after the :reset_timeout" do
-      circuit = object.new reset_timeout: 0.1.sec, max_failures: 0 do
+      circuit = object.new reset_timeout: 0.2.sec, max_failures: 0 do
         dangerous_call_error
       end
       expect { circuit.call }.to raise_error(Supervision::CircuitBreakerOpenError)
       expect(circuit.control.current).to eq(:open)
-      sleep 0.2
+      sleep 0.4
       expect(circuit.control.current).to eq(:half_open)
     end
   end
 
   context 'when half open' do
     it "resets the breaker back to :closed state on successful call" do
-      circuit = object.new reset_timeout: 100.milli, max_failures: 0 do |arg|
+      circuit = object.new reset_timeout: 0.2.sec, max_failures: 0 do |arg|
         arg == :danger ? dangerous_call_error : safe_call
       end
       expect {
         circuit.call(:danger)
       }.to raise_error(Supervision::CircuitBreakerOpenError)
       expect(circuit.control.current).to eql(:open)
-      sleep 0.2
+      sleep 0.4
       expect(circuit.control.current).to eql(:half_open)
       circuit.call(:safe)
       expect(circuit.control.current).to eql(:closed)
