@@ -5,7 +5,8 @@ module Supervision
   class CircuitControl
     extend Forwardable
 
-    def_delegators :@config, :max_failures, :call_timeout, :failure_count
+    def_delegators :@config, :max_failures, :call_timeout, :reset_timeout,
+                   :failure_count
 
     # The circuit configuration
     #

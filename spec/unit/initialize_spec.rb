@@ -24,6 +24,15 @@ describe Supervision do
         supervision.call(:foo)
         expect(called).to match_array(['method_call_foo'])
       end
+
+      it "accepts circuit options and exposes them" do
+        supervision = Supervision.supervise(max_failures: 4,
+                                            call_timeout: 0.1.sec,
+                                            reset_timeout: 0.4.sec) { }
+        expect(supervision.max_failures).to eq(4)
+        expect(supervision.call_timeout).to eq(0.1.sec)
+        expect(supervision.reset_timeout).to eq(0.4.sec)
+      end
     end
 
     describe "#supervise_as" do
@@ -36,6 +45,15 @@ describe Supervision do
         supervision.call(:foo)
         expect(Supervision[:danger]).to eql(supervision)
         expect(called).to match_array(['method_call_foo'])
+      end
+
+      it "accepts circuit options and exposes them" do
+        Supervision.supervise_as(:danger, max_failures: 4,
+                                          call_timeout: 0.1.sec,
+                                          reset_timeout: 0.4.sec) { }
+        expect(Supervision[:danger].max_failures).to eq(4)
+        expect(Supervision[:danger].call_timeout).to eq(0.1.sec)
+        expect(Supervision[:danger].reset_timeout).to eq(0.4.sec)
       end
 
       it "calls registered circuit by name" do

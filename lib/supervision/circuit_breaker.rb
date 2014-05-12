@@ -10,7 +10,8 @@ module Supervision
 
     attr_reader :name
 
-    def_delegators :@control, :current
+    def_delegators :@control, :current, :max_failures, :call_timeout,
+                   :reset_timeout
 
     # Create a CircuitBreaker
     #
