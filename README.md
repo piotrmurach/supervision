@@ -2,10 +2,12 @@
 [![Gem Version](https://badge.fury.io/rb/supervision.png)][gem]
 [![Build Status](https://secure.travis-ci.org/peter-murach/supervision.png?branch=master)][travis]
 [![Code Climate](https://codeclimate.com/github/peter-murach/supervision.png)][codeclimate]
+[![Coverage Status](https://coveralls.io/repos/peter-murach/supervision/badge.png)][coverage]
 
 [gem]: http://badge.fury.io/rb/supervision
 [travis]: http://travis-ci.org/peter-murach/supervision
 [codeclimate]: https://codeclimate.com/github/peter-murach/supervision
+[coverage]: https://coveralls.io/r/peter-murach/supervision
 
 Write distributed systems that are resilient and self-heal. Remote calls can fail or hang indefinietly without a response.
 **Supervision** will help to isolate failure and keep individual components from bringing down the whole system.
@@ -52,21 +54,29 @@ Once the call is wrapped you can execute it by sending `call` messsage with argu
 @supervision.call({user: 'Piotr'})
 ```
 
-Finally, you can also register **Supervision** instance by name
+## 2 System
+
+You can register more than one **Supervision** by using internal register system. Simply register name under which you want the circuit to be available by calling `supervise_as` helper:
 
 ```ruby
 Supervision.supervise_as(:danger) { remote_api_call }
 ```
 
-The name under which method is registerd will be available as a method call
+In order to retrieve registered circuit you can use hash syntax:
 
 ```ruby
-Supervision.danger.call
+Supervision[:danger]  # => returns registered circuit
 ```
 
-## 2 Mixin
+The name under which method is registerd will be available as a method call. Consequently, to execute registered circuit do:
 
-**Supervision** can also act as a mixin and expose `supervise` and `supervise_as` accordingly.
+```ruby
+Supervision.danger(:foo, :bar)  # => will call underlying method and pass :foo, :barr
+```
+
+## 3 Mixin
+
+**Supervision** can also act as a mixin and expose `supervise` and `supervise_as` accordingly. Use `supervise_as` if you want to be able to register supervised calls inside **Supervision** system. Otherwise, use `supervise` helper to create anonymous supervised call.
 
 ```ruby
 class Api
@@ -75,10 +85,10 @@ class Api
   def remote_call
     ...
   end
-  supervise :danger { remote_call }
+  supervise_as :danger { remote_call }  # => register supervision as :danger
 
   def fetch(repository)
-    danger.call(repository)
+    danger(repository)
   rescue Supervision::CircuitBreakerOpenError
     nil
   end
@@ -88,7 +98,7 @@ end
 @api.fetch('github_api')
 ```
 
-## 3 Callbacks
+## 4 Callbacks
 
 You can listen for `failure` and `success` by attaching `on_failure`, `on_success` listeners respectively:
 
@@ -100,7 +110,7 @@ def notify_me
 end
 ```
 
-## 4 Configuration
+## 5 Configuration
 
 If you want to configure **Supervision**, you can either pass options directly
 
@@ -120,7 +130,7 @@ or use `configure` helper
 end
 ```
 
-## 5 Time
+## 6 Time
 
 All the numeric types are extended with time related helpers to allow for more fluid parameters when creating **Supervision**
 
