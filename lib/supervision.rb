@@ -2,6 +2,7 @@
 
 require "thread"
 require "timeout"
+require "forwardable"
 require "finite_machine"
 
 require "supervision/version"
