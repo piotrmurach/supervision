@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Supervision::TimeDSL do
+RSpec.describe Supervision::TimeDSL do
   it "defines millisecond/milliseconds/milli/millis" do
     expect(1.millisecond).to eql(0.001)
     expect(1.milli).to eql(0.001)

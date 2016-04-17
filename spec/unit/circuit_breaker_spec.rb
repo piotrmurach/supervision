@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Supervision::CircuitBreaker do
+RSpec.describe Supervision::CircuitBreaker do
 
   let(:dangerous_call_timeout) { sleep 1 }
 
@@ -25,7 +25,7 @@ describe Supervision::CircuitBreaker do
   it "configures the control" do
     block = -> { }
     circuit = object.new { }
-    expect(circuit.control.config).to receive(:configure).with(&block)
+    expect(circuit.control.config).to receive(:configure).with(no_args)
     circuit.configure(&block)
   end
 

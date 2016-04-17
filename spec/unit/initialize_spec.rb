@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Supervision do
+RSpec.describe Supervision do
 
   context "when used as instance" do
     before { Supervision.circuit_system.shutdown }

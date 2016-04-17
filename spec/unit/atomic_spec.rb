@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Supervision::Atomic do
+RSpec.describe Supervision::Atomic do
 
   let(:object) { described_class }
 

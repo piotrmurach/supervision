@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Supervision::Configuration do
+RSpec.describe Supervision::Configuration do
   let(:object) { described_class }
 
   subject(:config) { described_class.new }

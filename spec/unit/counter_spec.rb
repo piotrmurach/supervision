@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Supervision::Counter do
+RSpec.describe Supervision::Counter do
 
   let(:object) { described_class }
 

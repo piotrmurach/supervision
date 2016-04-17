@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-describe Supervision::CircuitSystem do
+RSpec.describe Supervision::CircuitSystem do
   let(:object) { described_class }
 
   let(:circuit) { Supervision.supervise { } }

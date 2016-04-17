@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Supervision::Registry do
+RSpec.describe Supervision::Registry do
 
   let(:circuit) { Supervision.supervise { } }
 
@@ -44,18 +44,18 @@ describe Supervision::Registry do
   it "deletes circuit from registry" do
     registry.register :danger, circuit
     registry.delete :danger
-    expect(registry.empty?).to be_true
+    expect(registry.empty?).to eq(true)
   end
 
   it "checks if circuit is registered" do
     registry.register :danger, circuit
-    expect(registry.registered?(:danger)).to be_true
+    expect(registry.registered?(:danger)).to eq(true)
   end
 
   it "clears all circuits" do
     registry.register :danger, circuit
-    expect(registry.empty?).to be_false
+    expect(registry.empty?).to eq(false)
     registry.clear
-    expect(registry.empty?).to be_true
+    expect(registry.empty?).to eq(true)
   end
 end

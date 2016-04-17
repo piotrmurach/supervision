@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Supervision::CircuitControl do
+RSpec.describe Supervision::CircuitControl do
   let(:object) { described_class }
 
   let(:max_failures) { 1 }
@@ -82,12 +82,12 @@ describe Supervision::CircuitControl do
 
   describe "#measure_timeout" do
     it "kills the scheduler thread" do
+      allow(control).to receive(:max_thread_lifetime).and_return 0
       expect {
         control.trip
       }.to raise_error(Supervision::CircuitBreakerOpenError)
       expect(control.current).to eq(:open)
       expect(control.scheduler).to receive(:kill).once
-      control.stub(:max_thread_lifetime).and_return 0
       sleep reset_timeout
       expect(control.current).to eq(:open)
     end

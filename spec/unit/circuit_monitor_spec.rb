@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-describe Supervision::CircuitMonitor do
+RSpec.describe Supervision::CircuitMonitor do
   let(:object) { described_class }
 
   subject(:monitor) { object.new }
