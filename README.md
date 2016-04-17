@@ -1,18 +1,20 @@
 # Supervision
 [![Gem Version](https://badge.fury.io/rb/supervision.png)][gem]
-[![Build Status](https://secure.travis-ci.org/peter-murach/supervision.png?branch=master)][travis]
-[![Code Climate](https://codeclimate.com/github/peter-murach/supervision.png)][codeclimate]
-[![Coverage Status](https://coveralls.io/repos/peter-murach/supervision/badge.png)][coverage]
+[![Build Status](https://secure.travis-ci.org/piotrmurach/supervision.svg?branch=master)][travis]
+[![Code Climate](https://codeclimate.com/github/piotrmurach/supervision/badges/gpa.svg)][codeclimate]
+[![Coverage Status](https://coveralls.io/repos/github/piotrmurach/supervision/badge.svg)][coverage]
+[![Inline docs](http://inch-ci.org/github/piotrmurach/supervision.svg?branch=master)][inchpages]
 
 [gem]: http://badge.fury.io/rb/supervision
-[travis]: http://travis-ci.org/peter-murach/supervision
-[codeclimate]: https://codeclimate.com/github/peter-murach/supervision
-[coverage]: https://coveralls.io/r/peter-murach/supervision
+[travis]: http://travis-ci.org/piotrmurach/supervision
+[codeclimate]: https://codeclimate.com/github/piotrmurach/supervision
+[coverage]: https://coveralls.io/github/piotrmurach/supervision
+[inchpages]: http://inch-ci.org/github/piotrmurach/supervision
 
-Write distributed systems that are resilient and self-heal. Remote calls can fail or hang indefinietly without a response.
-**Supervision** will help to isolate failure and keep individual components from bringing down the whole system.
-The basic idea is to wrap dangerous method call inside protected `supervise` helper that will monitor for failure and
-handle it according to the specified rules to prevent it from cascading.
+> Write distributed systems that are resilient and self-heal. Remote calls can fail or hang indefinietly without a response.
+  **Supervision** will help to isolate failure and keep individual components from bringing down the whole system.
+  The basic idea is to wrap dangerous method call inside protected `supervise` helper that will monitor for failure and
+  handle it according to the specified rules to prevent it from cascading.
 
 ## Installation
 
@@ -153,7 +155,7 @@ call_timeout: 10.hours
 
 ## Contributing
 
-1. Fork it ( https://github.com/[my-github-username]/supervision/fork )
+1. Fork it ( https://github.com/piotrmurach/supervision/fork )
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
@@ -161,4 +163,4 @@ call_timeout: 10.hours
 
 ## Copyright
 
-Copyright (c) 2014 Piotr Murach. See LICENSE for further details.
+Copyright (c) 2014-2016 Piotr Murach. See LICENSE for further details.
