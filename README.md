@@ -1,5 +1,5 @@
 # Supervision
-[![Gem Version](https://badge.fury.io/rb/supervision.png)][gem]
+[![Gem Version](https://badge.fury.io/rb/supervision.svg)][gem]
 [![Build Status](https://secure.travis-ci.org/piotrmurach/supervision.svg?branch=master)][travis]
 [![Code Climate](https://codeclimate.com/github/piotrmurach/supervision/badges/gpa.svg)][codeclimate]
 [![Coverage Status](https://coveralls.io/repos/github/piotrmurach/supervision/badge.svg)][coverage]
